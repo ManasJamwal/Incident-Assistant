@@ -226,3 +226,5 @@ Retrieves ranked hybrid matches across AST code symbols, runbooks, and post-mort
 
 ### `GET /api/benchmark`
 Runs IR benchmark on-demand and returns MRR, Hit@1, Hit@3, Hit@5, and latency percentiles (p50, p90, p95, p99).
+#   I n c i d e n t - A s s i s t a n t  
+ 
