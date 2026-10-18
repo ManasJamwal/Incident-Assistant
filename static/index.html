@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Incident Assistant & Hybrid Search | DevOps & IT Infrastructure</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card-bg: #111827;
+      --card-border: #1f2937;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --accent: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --purple: #8b5cf6;
+      --text: #f3f4f6;
+      --text-muted: #9ca3af;
+      --code-bg: #030712;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 24px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--card-border);
+      margin-bottom: 24px;
+    }
+
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo-icon {
+      background: linear-gradient(135deg, #ef4444, #f59e0b);
+      color: white;
+      font-weight: 700;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 20px;
+    }
+
+    .title-area h1 {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .title-area p {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .status-badges {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 600;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .badge-live {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--accent);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .badge-live::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      background: var(--accent);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--accent);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.9); }
+    }
+
+    .badge-stats {
+      background: rgba(59, 130, 246, 0.12);
+      color: #93c5fd;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    /* Tabs & Modes */
+    .nav-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 8px;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 8px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+
+    .tab-btn.active {
+      background: var(--card-bg);
+      color: var(--text);
+      border: 1px solid var(--card-border);
+    }
+
+    /* Main Console Layout */
+    .console-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    /* Search Area */
+    .search-section {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .search-bar-wrap {
+      display: flex;
+      gap: 12px;
+    }
+
+    .search-input {
+      flex: 1;
+      background: var(--code-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 14px 18px;
+      color: var(--text);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      outline: none;
+      transition: border 0.2s;
+    }
+
+    .search-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+    }
+
+    .btn {
+      padding: 12px 22px;
+      border-radius: 10px;
+      border: none;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #dc2626;
+    }
+
+    .btn-secondary {
+      background: #1f2937;
+      color: var(--text);
+      border: 1px solid #374151;
+    }
+
+    .btn-secondary:hover {
+      background: #374151;
+    }
+
+    /* Controls bar */
+    .controls-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .strategy-select-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    select {
+      background: var(--code-bg);
+      color: var(--text);
+      border: 1px solid var(--card-border);
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      outline: none;
+    }
+
+    /* Preset Scenarios */
+    .scenario-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .scenario-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .scenario-btn {
+      background: rgba(31, 41, 55, 0.6);
+      border: 1px solid rgba(75, 85, 99, 0.4);
+      color: #d1d5db;
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: 'JetBrains Mono', monospace;
+      transition: all 0.2s;
+    }
+
+    .scenario-btn:hover {
+      background: rgba(59, 130, 246, 0.2);
+      border-color: var(--primary);
+      color: #93c5fd;
+    }
+
+    /* Latency HUD */
+    .latency-hud {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 14px;
+      margin-top: 14px;
+      padding: 14px;
+      background: rgba(3, 7, 18, 0.5);
+      border-radius: 10px;
+      border: 1px dashed var(--card-border);
+    }
+
+    .metric-box {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .metric-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+    }
+
+    .metric-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .metric-value.total {
+      color: #60a5fa;
+    }
+
+    /* Triage Report View */
+    .triage-card {
+      border: 1px solid #374151;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .triage-card.p0 {
+      border-left: 6px solid var(--danger);
+    }
+
+    .triage-card.p1 {
+      border-left: 6px solid var(--warning);
+    }
+
+    .triage-card.p2 {
+      border-left: 6px solid var(--primary);
+    }
+
+    .triage-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .triage-title {
+      font-size: 16px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .sev-tag {
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 12px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .sev-p0 { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+    .sev-p1 { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+    .sev-p2 { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid #3b82f6; }
+
+    .confidence-meter {
+      font-size: 13px;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-muted);
+    }
+
+    .hypothesis-box {
+      background: rgba(17, 24, 39, 0.8);
+      border: 1px solid #374151;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 18px;
+    }
+
+    .hypothesis-box h3 {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+
+    .hypothesis-text {
+      font-size: 15px;
+      font-weight: 500;
+      color: #f9fafb;
+    }
+
+    /* Sections inside Triage Card */
+    .triage-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 16px;
+    }
+
+    .sub-panel {
+      background: var(--code-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 14px;
+    }
+
+    .sub-panel h4 {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #93c5fd;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .code-block {
+      background: #000;
+      border: 1px solid #1f2937;
+      border-radius: 6px;
+      padding: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: #a7f3d0;
+      overflow-x: auto;
+      white-space: pre;
+    }
+
+    .cmd-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #000;
+      border: 1px solid #1f2937;
+      border-radius: 6px;
+      padding: 8px 12px;
+      margin-bottom: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+    }
+
+    .copy-btn {
+      background: #1f2937;
+      border: none;
+      color: var(--text-muted);
+      padding: 4px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 11px;
+    }
+
+    .copy-btn:hover {
+      background: #374151;
+      color: white;
+    }
+
+    /* Results List */
+    .results-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .result-item {
+      background: var(--code-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 14px 18px;
+      transition: border 0.2s;
+    }
+
+    .result-item:hover {
+      border-color: #4b5563;
+    }
+
+    .result-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .result-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #93c5fd;
+    }
+
+    .score-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      background: rgba(59, 130, 246, 0.15);
+      color: #60a5fa;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .result-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    /* Benchmark Table */
+    .bench-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 16px;
+      font-size: 13px;
+    }
+
+    .bench-table th, .bench-table td {
+      border: 1px solid var(--card-border);
+      padding: 12px 14px;
+      text-align: left;
+    }
+
+    .bench-table th {
+      background: #030712;
+      color: var(--text-muted);
+      font-weight: 600;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+    }
+
+    .bench-table tr:hover {
+      background: rgba(31, 41, 55, 0.5);
+    }
+
+    .highlight-cell {
+      color: var(--accent);
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .latency-cell {
+      color: #60a5fa;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <div class="logo-area">
+        <div class="logo-icon">INCIDENT</div>
+        <div class="title-area">
+          <h1>Codebase & Infrastructure Incident Assistant</h1>
+          <p>AST Syntax Lexical Matcher &bull; BM25 Inverted Index &bull; Dense Documentation Vectors</p>
+        </div>
+      </div>
+      <div class="status-badges">
+        <span class="badge badge-live">ENGINE READY</span>
+        <span class="badge badge-stats" id="corpusBadge">AST: ... | Docs: ...</span>
+      </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <div class="nav-tabs">
+      <button class="tab-btn active" onclick="switchTab('triageView')">🚨 Outage Triage Console</button>
+      <button class="tab-btn" onclick="switchTab('benchmarkView')">📊 Evaluation & MRR Benchmark</button>
+      <button class="tab-btn" onclick="switchTab('corpusView')">📚 Indexed Repositories & Docs</button>
+    </div>
+
+    <!-- TAB 1: Outage Triage Console -->
+    <div id="triageView" class="console-layout">
+      <div class="card search-section">
+        <div class="search-bar-wrap">
+          <input
+            type="text"
+            id="queryInput"
+            class="search-input"
+            placeholder="Enter outage symptom, stack trace, or error code (e.g., HTTP 502 Bad Gateway)..."
+            value="HTTP 502 Bad Gateway: Upstream payment processor dropped connection"
+          />
+          <button class="btn btn-danger" onclick="triggerTriage()">
+            ⚡ Diagnose Outage
+          </button>
+          <button class="btn btn-primary" onclick="triggerSearch()">
+            🔍 Search
+          </button>
+        </div>
+
+        <div class="controls-row">
+          <div class="scenario-tags">
+            <span class="scenario-label">Quick Outages:</span>
+            <button class="scenario-btn" onclick="setQuery('HTTP 502 Bad Gateway: Upstream payment processor dropped connection')">502 Bad Gateway</button>
+            <button class="scenario-btn" onclick="setQuery('PoolExhaustionError: Timeout waiting for connection from pool size 20')">DB Pool Exhaustion</button>
+            <button class="scenario-btn" onclick="setQuery('MemoryThresholdExceeded: Pod status: OOMKilled (Exit Code 137)')">OOMKilled Pod (137)</button>
+            <button class="scenario-btn" onclick="setQuery('TokenExpiredError: Token signature expired or NTP time skew exceeded threshold')">NTP Clock Skew (401)</button>
+            <button class="scenario-btn" onclick="setQuery('File &quot;checkout_flow.py&quot;, line 25, in execute_checkout_transaction')">Stack Trace Checkout</button>
+            <button class="scenario-btn" onclick="setQuery('users experiencing checkout hangs and timeout errors during flash sale')">Symptom: Checkout Hang</button>
+          </div>
+
+          <div class="strategy-select-wrap">
+            <label for="strategySelect">Retrieval Engine:</label>
+            <select id="strategySelect">
+              <option value="hybrid" selected>Hybrid (AST + BM25 + Dense RRF)</option>
+              <option value="bm25_only">Pure BM25 (Error Codes / Tokens)</option>
+              <option value="dense_only">Pure Dense Vectors (Doc Embeddings)</option>
+              <option value="ast_only">AST Exact Lexical Matcher</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Latency HUD -->
+        <div class="latency-hud" id="latencyHud">
+          <div class="metric-box">
+            <span class="metric-label">Detected Intent</span>
+            <span class="metric-value" id="intentVal" style="color: #c084fc;">READY</span>
+          </div>
+          <div class="metric-box">
+            <span class="metric-label">AST / Lexical Latency</span>
+            <span class="metric-value" id="lexicalLatVal">0.00 ms</span>
+          </div>
+          <div class="metric-box">
+            <span class="metric-label">Dense Vector Latency</span>
+            <span class="metric-value" id="denseLatVal">0.00 ms</span>
+          </div>
+          <div class="metric-box">
+            <span class="metric-label">RRF Fusion Latency</span>
+            <span class="metric-value" id="fusionLatVal">0.00 ms</span>
+          </div>
+          <div class="metric-box">
+            <span class="metric-label">Total Retrieval Latency</span>
+            <span class="metric-value total" id="totalLatVal">0.00 ms</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Triage Report Display -->
+      <div id="triageReportArea" style="display: none;">
+        <!-- Injected via JavaScript -->
+      </div>
+
+      <!-- Ranked Hybrid Results Section -->
+      <div class="card" id="searchResultsArea">
+        <h3 style="font-size: 14px; font-weight: 600; text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px;">
+          Ranked Hybrid Search Matches
+        </h3>
+        <div id="resultsList" class="results-list">
+          <div class="empty-state">
+            Trigger "Diagnose Outage" or "Search" to inspect indexed code ASTs and incident documentation.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: Evaluation & MRR Benchmark -->
+    <div id="benchmarkView" class="console-layout" style="display: none;">
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <div>
+            <h2 style="font-size: 18px; font-weight: 700;">Incident Information Retrieval Evaluation Framework</h2>
+            <p style="font-size: 13px; color: var(--text-muted);">
+              Benchmarking Mean Reciprocal Rank (MRR), Hit Rate @ K, and Latency percentiles across 20+ real-world outage queries.
+            </p>
+          </div>
+          <button class="btn btn-primary" onclick="runBenchmark()">
+            🚀 Run Benchmark Suite
+          </button>
+        </div>
+
+        <div id="benchmarkTableArea">
+          <table class="bench-table">
+            <thead>
+              <tr>
+                <th>Strategy</th>
+                <th>Queries</th>
+                <th>MRR (Mean Reciprocal Rank)</th>
+                <th>Hit Rate @ 1</th>
+                <th>Hit Rate @ 3</th>
+                <th>Hit Rate @ 5</th>
+                <th>Mean Latency</th>
+                <th>p50 Latency</th>
+                <th>p95 Latency</th>
+                <th>p99 Latency</th>
+              </tr>
+            </thead>
+            <tbody id="benchmarkRows">
+              <tr>
+                <td colspan="10" style="text-align: center; color: var(--text-muted); padding: 30px;">
+                  Click "Run Benchmark Suite" to evaluate live retrieval performance and latency distributions.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: Indexed Repositories & Docs -->
+    <div id="corpusView" class="console-layout" style="display: none;">
+      <div class="card">
+        <h2 style="font-size: 18px; font-weight: 700; margin-bottom: 16px;">Indexed Code AST Symbols & Documentation</h2>
+        <div class="triage-grid" id="corpusGrid">
+          <div class="sub-panel">
+            <h4>Codebase AST Symbols</h4>
+            <div id="symbolList" style="max-height: 500px; overflow-y: auto; font-family: 'JetBrains Mono', monospace; font-size: 12px;"></div>
+          </div>
+          <div class="sub-panel">
+            <h4>Runbooks & Post-Mortems</h4>
+            <div id="docList" style="max-height: 500px; overflow-y: auto; font-family: 'JetBrains Mono', monospace; font-size: 12px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // State management
+    const API_BASE = window.location.origin;
+
+    async function init() {
+      try {
+        const res = await fetch(`${API_BASE}/api/health`);
+        const data = await res.json();
+        document.getElementById("corpusBadge").innerText = `AST: ${data.ast_symbols_indexed} | Docs: ${data.documents_indexed} | BM25: ${data.bm25_items_indexed}`;
+        loadCorpus();
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function switchTab(viewId) {
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+      event.target.classList.add("active");
+      document.getElementById("triageView").style.display = viewId === "triageView" ? "grid" : "none";
+      document.getElementById("benchmarkView").style.display = viewId === "benchmarkView" ? "grid" : "none";
+      document.getElementById("corpusView").style.display = viewId === "corpusView" ? "grid" : "none";
+    }
+
+    function setQuery(q) {
+      document.getElementById("queryInput").value = q;
+      triggerTriage();
+    }
+
+    async function triggerTriage() {
+      const query = document.getElementById("queryInput").value.trim();
+      const strategy = document.getElementById("strategySelect").value;
+      if (!query) return;
+
+      const reportArea = document.getElementById("triageReportArea");
+      reportArea.style.display = "block";
+      reportArea.innerHTML = `<div class="card" style="text-align:center; padding: 30px; color: #9ca3af;">Running emergency diagnosis and hybrid retrieval...</div>`;
+
+      try {
+        const [triageRes, searchRes] = await Promise.all([
+          fetch(`${API_BASE}/api/triage`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ query, strategy })
+          }).then(r => r.json()),
+          fetch(`${API_BASE}/api/search`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ query, strategy, top_k: 6 })
+          }).then(r => r.json())
+        ]);
+
+        updateLatencyHUD(searchRes.latency, searchRes.detected_intent);
+        renderTriageReport(triageRes);
+        renderSearchResults(searchRes.results);
+      } catch (err) {
+        reportArea.innerHTML = `<div class="card" style="color: #ef4444;">Error executing triage: ${err.message}</div>`;
+      }
+    }
+
+    async function triggerSearch() {
+      const query = document.getElementById("queryInput").value.trim();
+      const strategy = document.getElementById("strategySelect").value;
+      if (!query) return;
+
+      try {
+        const res = await fetch(`${API_BASE}/api/search`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query, strategy, top_k: 6 })
+        });
+        const data = await res.json();
+        updateLatencyHUD(data.latency, data.detected_intent);
+        renderSearchResults(data.results);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    function updateLatencyHUD(lat, intent) {
+      document.getElementById("intentVal").innerText = intent || "HYBRID";
+      document.getElementById("lexicalLatVal").innerText = `${lat.lexical_ms} ms`;
+      document.getElementById("denseLatVal").innerText = `${lat.dense_ms} ms`;
+      document.getElementById("fusionLatVal").innerText = `${lat.fusion_ms} ms`;
+      document.getElementById("totalLatVal").innerText = `${lat.total_ms} ms`;
+    }
+
+    function renderTriageReport(report) {
+      const area = document.getElementById("triageReportArea");
+      const sevClass = report.detected_severity.toLowerCase().includes("p0") ? "p0" : (report.detected_severity.includes("p1") ? "p1" : "p2");
+      const sevTagClass = `sev-${sevClass}`;
+
+      let codeHtml = "";
+      if (report.relevant_code_symbols && report.relevant_code_symbols.length > 0) {
+        const sym = report.relevant_code_symbols[0];
+        codeHtml = `
+          <div class="sub-panel">
+            <h4>📌 Localized AST Code: ${sym.name}</h4>
+            <div style="font-size: 12px; color: #9ca3af; margin-bottom: 6px;">
+              Service: <strong>${sym.service}</strong> | File: <code>${sym.file}</code> (lines ${sym.lines})
+            </div>
+            <pre class="code-block"><code>${escapeHtml(sym.snippet)}</code></pre>
+          </div>
+        `;
+      }
+
+      let actionsHtml = "";
+      if (report.immediate_actions && report.immediate_actions.length > 0) {
+        actionsHtml = report.immediate_actions.map(act => `
+          <div class="cmd-item">
+            <code>${escapeHtml(act)}</code>
+            <button class="copy-btn" onclick="navigator.clipboard.writeText('${escapeQuotes(act)}')">Copy</button>
+          </div>
+        `).join("");
+      } else {
+        actionsHtml = `<div style="color: #9ca3af; font-size: 13px;">Follow standard on-call escalation protocol.</div>`;
+      }
+
+      let diagHtml = "";
+      if (report.diagnostic_commands && report.diagnostic_commands.length > 0) {
+        diagHtml = report.diagnostic_commands.map(cmd => `
+          <div class="cmd-item">
+            <code>${escapeHtml(cmd)}</code>
+            <button class="copy-btn" onclick="navigator.clipboard.writeText('${escapeQuotes(cmd)}')">Copy</button>
+          </div>
+        `).join("");
+      }
+
+      let postMortemHtml = "";
+      if (report.matched_post_mortems && report.matched_post_mortems.length > 0) {
+        const pm = report.matched_post_mortems[0];
+        postMortemHtml = `
+          <div class="sub-panel">
+            <h4>📖 Matched Historical Incident Post-Mortem</h4>
+            <div style="font-weight: 600; color: #f3f4f6; margin-bottom: 4px;">${pm.title}</div>
+            <div style="font-size: 12px; color: #9ca3af; line-height: 1.4;">${escapeHtml(pm.preview.substring(0, 220))}...</div>
+          </div>
+        `;
+      }
+
+      area.innerHTML = `
+        <div class="card triage-card ${sevClass}">
+          <div class="triage-header">
+            <div class="triage-title">
+              <span class="sev-tag ${sevTagClass}">${report.detected_severity} INCIDENT</span>
+              <span>Target Service: <strong>${report.identified_service}</strong></span>
+            </div>
+            <div class="confidence-meter">
+              Model Confidence: <strong>${Math.round(report.confidence_score * 100)}%</strong> | Engine Latency: <strong>${report.retrieval_latency_ms} ms</strong>
+            </div>
+          </div>
+
+          <div class="hypothesis-box">
+            <h3>Synthesized Root Cause Hypothesis</h3>
+            <div class="hypothesis-text">${report.probable_root_cause}</div>
+          </div>
+
+          <div class="triage-grid">
+            ${codeHtml}
+            <div class="sub-panel">
+              <h4>⚡ Immediate Runbook Remediation Steps</h4>
+              ${actionsHtml}
+              <h4 style="margin-top: 14px;">🛠️ Diagnostic Commands</h4>
+              ${diagHtml}
+            </div>
+          </div>
+          ${postMortemHtml ? `<div style="margin-top: 16px;">${postMortemHtml}</div>` : ""}
+        </div>
+      `;
+    }
+
+    function renderSearchResults(results) {
+      const list = document.getElementById("resultsList");
+      if (!results || results.length === 0) {
+        list.innerHTML = `<div class="empty-state">No matching documents or code symbols found.</div>`;
+        return;
+      }
+
+      list.innerHTML = results.map(item => {
+        const badgeType = item.item_type === "code_ast" ? "AST CODE" : (item.item_type === "post_mortem" ? "POST-MORTEM" : "RUNBOOK");
+        return `
+          <div class="result-item">
+            <div class="result-header">
+              <span class="result-title">#${item.rank} ${item.title}</span>
+              <div>
+                <span class="score-badge">${badgeType}</span>
+                <span class="score-badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399;">RRF Score: ${item.score}</span>
+              </div>
+            </div>
+            <div class="result-meta">
+              Path: <code>${item.source_path}</code>
+              ${item.bm25_score ? ` | BM25: ${item.bm25_score}` : ""}
+              ${item.dense_score ? ` | Dense: ${item.dense_score}` : ""}
+              ${item.ast_exact_match ? ` | <span style="color:#a7f3d0;">✓ Exact AST Symbol</span>` : ""}
+            </div>
+            <pre class="code-block" style="max-height: 120px;"><code>${escapeHtml(item.preview)}</code></pre>
+          </div>
+        `;
+      }).join("");
+    }
+
+    async function runBenchmark() {
+      const tbody = document.getElementById("benchmarkRows");
+      tbody.innerHTML = `<tr><td colspan="10" style="text-align:center; padding: 25px; color: #9ca3af;">Executing evaluation benchmark suite across all ablation strategies...</td></tr>`;
+
+      try {
+        const res = await fetch(`${API_BASE}/api/benchmark`);
+        const data = await res.json();
+        const ablations = data.ablations;
+
+        tbody.innerHTML = Object.keys(ablations).map(key => {
+          const b = ablations[key];
+          const isHybrid = key === "hybrid";
+          const rowStyle = isHybrid ? "background: rgba(59, 130, 246, 0.08); font-weight: 600;" : "";
+          return `
+            <tr style="${rowStyle}">
+              <td><strong>${b.strategy_name.toUpperCase()}</strong> ${isHybrid ? "🌟 (Proposed)" : ""}</td>
+              <td>${b.total_queries}</td>
+              <td class="highlight-cell">${b.mrr}</td>
+              <td>${(b.hit_rate_at_1 * 100).toFixed(1)}%</td>
+              <td>${(b.hit_rate_at_3 * 100).toFixed(1)}%</td>
+              <td>${(b.hit_rate_at_5 * 100).toFixed(1)}%</td>
+              <td class="latency-cell">${b.latency_mean_ms} ms</td>
+              <td class="latency-cell">${b.latency_p50_ms} ms</td>
+              <td class="latency-cell" style="color: #f59e0b; font-weight: 700;">${b.latency_p95_ms} ms</td>
+              <td class="latency-cell">${b.latency_p99_ms} ms</td>
+            </tr>
+          `;
+        }).join("");
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="10" style="color: #ef4444; padding: 20px;">Benchmark failed: ${err.message}</td></tr>`;
+      }
+    }
+
+    async function loadCorpus() {
+      try {
+        const res = await fetch(`${API_BASE}/api/corpus`);
+        const data = await res.json();
+
+        const symList = document.getElementById("symbolList");
+        symList.innerHTML = data.symbols.map(s => `
+          <div style="padding: 6px 0; border-bottom: 1px solid #1f2937;">
+            <span style="color: #60a5fa;">${s.type}</span> <strong>${s.name}</strong> 
+            <span style="color: #9ca3af;">(${s.service}/${s.file}:${s.lines})</span>
+            ${s.exceptions.length ? `<span style="color: #f87171;"> raises [${s.exceptions.join(', ')}]</span>` : ""}
+          </div>
+        `).join("");
+
+        const docList = document.getElementById("docList");
+        docList.innerHTML = data.documents.map(d => `
+          <div style="padding: 6px 0; border-bottom: 1px solid #1f2937;">
+            <span style="color: #34d399;">${d.type.toUpperCase()}</span> <strong>${d.title}</strong>
+            <span style="color: #f59e0b;"> [${d.severity}]</span>
+          </div>
+        `).join("");
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function escapeHtml(str) {
+      if (!str) return "";
+      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    function escapeQuotes(str) {
+      if (!str) return "";
+      return str.replace(/'/g, "\\'").replace(/"/g, '\\"');
+    }
+
+    window.onload = init;
+  </script>
+</body>
+</html>
